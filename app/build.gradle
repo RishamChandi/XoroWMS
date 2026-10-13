@@ -1,0 +1,52 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Values can be overridden at build time, e.g.
+//   ./gradlew assembleRelease -PwmsUrl=https://wms.example.com -PadminPin=4321 -PversionCode=7
+def wmsUrl = (project.findProperty('wmsUrl') ?: '').toString()
+def adminPin = (project.findProperty('adminPin') ?: '1234').toString()
+def buildVersionCode = (project.findProperty('versionCode') ?: '1').toString().toInteger()
+
+android {
+    namespace 'com.intercompany.wmskiosk'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.intercompany.wmskiosk'
+        minSdk 23
+        targetSdk 34
+        versionCode buildVersionCode
+        versionName "1.0.${buildVersionCode}"
+
+        buildConfigField 'String', 'DEFAULT_WMS_URL', "\"${wmsUrl}\""
+        buildConfigField 'String', 'DEFAULT_ADMIN_PIN', "\"${adminPin}\""
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    signingConfigs {
+        release {
+            // CI passes a keystore from GitHub secrets when configured; otherwise the
+            // committed fallback keystore keeps signatures stable so updates install in place.
+            storeFile file(System.getenv('KIOSK_KEYSTORE_PATH') ?: "${rootDir}/keystore/wms-kiosk.jks")
+            storePassword System.getenv('KIOSK_KEYSTORE_PASSWORD') ?: 'wmskiosk'
+            keyAlias System.getenv('KIOSK_KEY_ALIAS') ?: 'wmskiosk'
+            keyPassword System.getenv('KIOSK_KEY_PASSWORD') ?: 'wmskiosk'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

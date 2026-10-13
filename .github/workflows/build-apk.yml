@@ -1,0 +1,79 @@
+name: Build APK
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      wms_url:
+        description: 'Pre-fill the WMS address (normally blank: set it in the app)'
+        required: false
+        default: ''
+      admin_pin:
+        description: 'Default admin PIN (blank = WMS_KIOSK_PIN repo variable, or 1234)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Use signing key from secrets (optional)
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KIOSK_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/kiosk.jks"
+            echo "KIOSK_KEYSTORE_PATH=$RUNNER_TEMP/kiosk.jks" >> "$GITHUB_ENV"
+            echo "Signing with keystore from secrets."
+          else
+            echo "No KIOSK_KEYSTORE_BASE64 secret; signing with the committed fallback keystore."
+          fi
+
+      - name: Build APK
+        env:
+          WMS_URL: ${{ inputs.wms_url || vars.WMS_KIOSK_URL }}
+          ADMIN_PIN: ${{ inputs.admin_pin || vars.WMS_KIOSK_PIN || '1234' }}
+          KIOSK_KEYSTORE_PASSWORD: ${{ secrets.KIOSK_KEYSTORE_PASSWORD }}
+          KIOSK_KEY_ALIAS: ${{ secrets.KIOSK_KEY_ALIAS }}
+          KIOSK_KEY_PASSWORD: ${{ secrets.KIOSK_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon \
+            -PversionCode=${{ github.run_number }} \
+            -PwmsUrl="$WMS_URL" \
+            -PadminPin="$ADMIN_PIN"
+          cp app/build/outputs/apk/release/app-release.apk xoro-wms.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: xoro-wms
+          path: xoro-wms.apk
+
+      - name: Publish release
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v1.0.${{ github.run_number }}
+        run: |
+          gh release create "$TAG" xoro-wms.apk \
+            --target "$GITHUB_SHA" \
+            --title "Xoro WMS $TAG" \
+            --notes "Install on the scanner: open https://github.com/${{ github.repository }}/releases/latest/download/xoro-wms.apk" \
+            --latest

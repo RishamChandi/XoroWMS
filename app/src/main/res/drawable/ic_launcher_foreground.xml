@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "WMS" lettering over a scan line and barcode, on the 108dp adaptive-icon canvas. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="4.2" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M26.5,35.5 L31,55 L35.5,41.5 L40,55 L44.5,35.5" />
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="4.2" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M48,55 L48,35.5 L56,47 L64,35.5 L64,55" />
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="4.2" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M81,39.5 C79.5,36.5 76.5,35.4 73.5,35.6 C70,35.9 67.6,38 68,40.8 C68.4,43.6 71.6,44.4 74.3,45 C77.8,45.8 81.4,47.2 81.2,50.8 C81,54 77.8,55.6 74.3,55.4 C71,55.2 68.4,53.8 67.2,51.2" />
+    <path android:fillColor="#F5A623" android:pathData="M27.1,60.5h53.8a1.1,1.1 0,0 1,0 2.2h-53.8a1.1,1.1 0,0 1,0 -2.2z" />
+    <path android:fillColor="#9CC8F0" android:pathData="M27,66h3v10h-3zM32,66h1.5v10h-1.5zM35.5,66h4v10h-4zM41.5,66h1.5v10h-1.5zM45,66h2.5v10h-2.5zM49.5,66h1.5v10h-1.5zM53,66h4v10h-4zM59,66h1.5v10h-1.5zM62.5,66h3v10h-3zM67.5,66h1.5v10h-1.5zM71,66h2.5v10h-2.5zM75.5,66h1.5v10h-1.5zM79,66h2v10h-2z" />
+</vector>
